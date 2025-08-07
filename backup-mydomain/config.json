@@ -6,6 +6,6 @@
   "gdrive_folder": "ServerBackups",
   "remote_retention_days": 20,
   "email_mode": "Always",
-  "notify_email": "my_email@gmail.com",
+  "notify_email": "my_email@mail.com",
   "db_pass": "db_password"
 }
