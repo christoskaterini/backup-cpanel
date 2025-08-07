@@ -16,145 +16,158 @@ function getValue($key, $default = '')
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
-    <title>Backup Configuration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Backup Configuration</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts for a nicer look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: sans-serif;
-            margin: 2em;
-            background-color: #f4f4f4;
+        :root {
+            --bs-body-bg: #fdfaf6;
+            --bs-primary-rgb: 88, 129, 87;
+            --bs-secondary-rgb: 243, 238, 232;
+            --bs-body-font-family: 'Nunito Sans', sans-serif;
+            --bs-card-border-color: rgba(0, 0, 0, 0.1);
         }
 
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 2em;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .card-header {
+            background-color: rgb(var(--bs-primary-rgb));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-img {
+            max-height: 50px;
+            margin-right: 20px;
+        }
+
+        .btn-primary {
+            --bs-btn-bg: rgb(var(--bs-primary-rgb));
+            --bs-btn-border-color: rgb(var(--bs-primary-rgb));
+            --bs-btn-hover-bg: #4a6e49;
+            /* A slightly darker green */
+            --bs-btn-hover-border-color: #4a6e49;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box {
+            background-color: rgb(var(--bs-secondary-rgb));
+            border-left: 4px solid rgb(var(--bs-primary-rgb));
+            padding: 10px 15px;
+            margin-top: 8px;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.9em;
+            color: #555;
         }
 
         h1,
-        h2 {
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin-top: 1em;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="email"],
-        input[type="number"],
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-
-        textarea {
-            height: 120px;
-            resize: vertical;
-        }
-
-        .hint {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 1.5em;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .message {
-            padding: 1em;
-            margin-bottom: 1em;
-            border-radius: 4px;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        h2,
+        .form-label {
+            font-weight: 700;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Server Backup Configuration</h1>
+    <div class="container my-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header">
+                <img src="logo.png" alt="Logo" class="logo-img my-2">
+                <h1 class="h2 my-2">Server Backup Configuration</h1>
+            </div>
+            <div class="card-body p-4 p-md-5">
 
-        <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
-            <p class="message success">Configuration saved successfully!</p>
-        <?php endif; ?>
+                <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+                    <div class="alert alert-success" role="alert">
+                        Configuration saved successfully!
+                    </div>
+                <?php endif; ?>
 
-        <form action="save_config.php" method="POST">
+                <form action="save_config.php" method="POST">
+                    <div class="row g-4">
 
-            <h2>Step 1: Database Settings</h2>
-            <label for="db_user">Database User</label>
-            <input type="text" id="db_user" name="db_user" value="<?php echo getValue('db_user'); ?>" required>
-            <p class="hint">The MySQL user that has access to all databases below.</p>
+                        <!-- Left Column -->
+                        <div class="col-lg-6">
+                            <h2 class="h4 mb-3 border-bottom pb-2">Step 1: What to Back Up</h2>
+                            <div class="mb-3">
+                                <label for="databases" class="form-label">Databases</label>
+                                <textarea class="form-control" id="databases" name="databases" rows="6" required><?php echo getValue('databases'); ?></textarea>
+                                <div class="info-box">Enter one database name per line.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="directories" class="form-label">Directories</label>
+                                <textarea class="form-control" id="directories" name="directories" rows="6" required><?php echo getValue('directories'); ?></textarea>
+                                <div class="info-box">Enter one full, absolute path per line.<br>E.g., `/home/your_user/public_html`</div>
+                            </div>
+                        </div>
 
-            <label for="db_pass">Database Password</label>
-            <input type="password" id="db_pass" name="db_pass" placeholder="Enter new password or leave blank to keep existing">
-            <p class="hint">Leave this blank to not change the password.</p>
+                        <!-- Right Column -->
+                        <div class="col-lg-6">
+                            <h2 class="h4 mb-3 border-bottom pb-2">Step 2: How to Back Up</h2>
+                            <div class="mb-3">
+                                <label for="db_user" class="form-label">Database User</label>
+                                <input type="text" class="form-control" id="db_user" name="db_user" value="<?php echo getValue('db_user'); ?>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="db_pass" class="form-label">Database Password</label>
+                                <input type="password" class="form-control" id="db_pass" name="db_pass" placeholder="Leave blank to keep existing">
+                            </div>
 
-            <label for="databases">Databases to Back Up</label>
-            <textarea id="databases" name="databases" required><?php echo getValue('databases'); ?></textarea>
-            <p class="hint">One database name per line. E.g., `database_sample`</p>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-7">
+                                    <label for="rclone_remote" class="form-label">Cloud Remote Name</label>
+                                    <input type="text" class="form-control" id="rclone_remote" name="rclone_remote" value="<?php echo getValue('rclone_remote', 'gdrive_backup'); ?>" required>
+                                    <div class="info-box">The name you gave during rclone config.</div>
+                                </div>
+                                <div class="col-sm-5">
+                                    <label for="remote_retention_days" class="form-label">Cloud Retention</label>
+                                    <input type="number" class="form-control" id="remote_retention_days" name="remote_retention_days" value="<?php echo getValue('remote_retention_days', 30); ?>" required>
+                                    <div class="info-box">Days to keep backups.</div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="gdrive_folder" class="form-label">Cloud Storage Path</label>
+                                <input type="text" class="form-control" id="gdrive_folder" name="gdrive_folder" value="<?php echo getValue('gdrive_folder', 'ServerBackups/MySite'); ?>" required>
+                                <div class="info-box">The folder path inside your cloud storage.</div>
+                            </div>
 
-            <h2>Step 2: File & Folder Settings</h2>
-            <label for="directories">Directories to Back Up</label>
-            <textarea id="directories" name="directories" required><?php echo getValue('directories'); ?></textarea>
-            <p class="hint">One full path per line. E.g., `/home/user/public_html`</p>
+                            <h2 class="h4 mb-3 border-bottom pb-2">Step 3: Notifications</h2>
+                            <div class="row g-3">
+                                <div class="col-sm-7">
+                                    <label for="notify_email" class="form-label">Notification Email</label>
+                                    <input type="email" class="form-control" id="notify_email" name="notify_email" value="<?php echo getValue('notify_email'); ?>" placeholder="your.email@example.com">
+                                </div>
+                                <div class="col-sm-5">
+                                    <label for="email_mode" class="form-label">Frequency</label>
+                                    <select class="form-select" id="email_mode" name="email_mode">
+                                        <option value="Always" <?php if (getValue('email_mode', 'Always') == 'Always') echo 'selected'; ?>>Always</option>
+                                        <option value="On Failure" <?php if (getValue('email_mode') == 'On Failure') echo 'selected'; ?>>On Failure</option>
+                                        <option value="Never" <?php if (getValue('email_mode') == 'Never') echo 'selected'; ?>>Never</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <h2>Step 3: Destination (Google Drive)</h2>
-            <label for="rclone_remote">Rclone Remote Name</label>
-            <input type="text" id="rclone_remote" name="rclone_remote" value="<?php echo getValue('rclone_remote', 'gdrive_backup'); ?>" required>
-            <p class="hint">The name you gave your remote during `rclone config`.</p>
-
-            <label for="gdrive_folder">Google Drive Folder</label>
-            <input type="text" id="gdrive_folder" name="gdrive_folder" value="<?php echo getValue('gdrive_folder', 'ServerBackups'); ?>" required>
-            <p class="hint">The folder path inside your Google Drive.</p>
-
-            <label for="remote_retention_days">Google Drive Retention (Days)</label>
-            <input type="number" id="remote_retention_days" name="remote_retention_days" value="<?php echo getValue('remote_retention_days', 30); ?>" required>
-            <p class="hint">Deletes backup folders on Google Drive older than this many days. Use 0 to disable remote cleanup.</p>
-
-            <h2>Step 4: Notifications</h2>
-            <label for="email_mode">When to Send Email Notifications</label>
-            <select id="email_mode" name="email_mode">
-                <option value="Always" <?php if (getValue('email_mode') == 'Always') echo 'selected'; ?>>Always (On Success or Failure)</option>
-                <option value="On Failure" <?php if (getValue('email_mode') == 'On Failure') echo 'selected'; ?>>On Failure Only</option>
-                <option value="Never" <?php if (getValue('email_mode') == 'Never') echo 'selected'; ?>>Never</option>
-            </select>
-
-            <label for="notify_email">Email Address for Notifications</label>
-            <input type="email" id="notify_email" name="notify_email" value="<?php echo getValue('notify_email'); ?>" placeholder="your.email@example.com">
-            <p class="hint">The email address to send notifications to. Only used if the setting above is not "Never".</p>
-
-            <button type="submit">Save Configuration</button>
-        </form>
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg py-2">Save & Update Configuration</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <footer class="text-center text-muted mt-4">
+            <small>Custom Backup System v4.0</small>
+        </footer>
     </div>
 </body>
 
