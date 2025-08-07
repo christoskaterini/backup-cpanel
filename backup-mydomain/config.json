@@ -1,0 +1,11 @@
+{
+  "db_user": "my_db_user",
+  "databases": "my_databases",
+  "directories": "/my_directories",
+  "rclone_remote": "gdrive_backup",
+  "gdrive_folder": "ServerBackups",
+  "remote_retention_days": 20,
+  "email_mode": "Always",
+  "notify_email": "my_email@gmail.com",
+  "db_pass": "db_password"
+}
