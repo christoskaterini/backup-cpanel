@@ -9,7 +9,6 @@ This system is designed specifically for shared hosting environments where direc
 - **Web-Based UI:** An easy-to-use, password-protected web page to configure all backup settings without needing to edit script files.
 - **Multi-Destination Support:** Easily configurable for any cloud storage provider supported by `rclone` (Google Drive, Dropbox, Amazon S3, etc.).
 - **Selective Backups:** Choose exactly which databases and directories you want to back up.
-- **Custom Exclusions:** Specify file or folder patterns (e.g., `*/cache`) to exclude from your file backups, saving space and time.
 - **Unique, Timestamped Backups:** Each backup run is saved in a unique folder named with the date and time (e.g., `YYYY-MM-DD_HHMMSS`), preventing overwrites.
 - **Automated Cleanup (Retention Policies):**
   - Automatically deletes old backups from your cloud storage after a specified number of days.
