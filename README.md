@@ -6,7 +6,8 @@ This system is designed specifically for shared hosting environments where direc
 
 ## Features
 
-- **Web-Based UI:** An easy-to-use, password-protected web page to configure all backup settings without needing to edit script files.
+- **Protected Web Interface:** A password-protected web interface for configuration.
+- **Web-Based UI:** An easy-to-use, password-protected web interface.
 - **Multi-Destination Support:** Easily configurable for any cloud storage provider supported by `rclone` (Google Drive, Dropbox, Amazon S3, etc.).
 - **Selective Backups:** Choose exactly which databases and directories you want to back up.
 - **Unique, Timestamped Backups:** Each backup run is saved in a unique folder named with the date and time (e.g., `YYYY-MM-DD_HHMMSS`), preventing overwrites.
