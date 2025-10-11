@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $newConfig['db_pass'] = isset($config['db_pass']) ? $config['db_pass'] : '';
     }
-    
+
     // Handle admin password change
     if (!empty($_POST['new_admin_password'])) {
         $newConfig['admin_password'] = password_hash($_POST['new_admin_password'], PASSWORD_DEFAULT);

@@ -23,7 +23,7 @@ if (!isset($config['admin_password'])) {
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
-    
+
     if (password_verify($password, $config['admin_password'])) {
         $_SESSION['authenticated'] = true;
         $_SESSION['last_activity'] = time();
@@ -39,6 +39,7 @@ $timeoutMessage = isset($_GET['timeout']) ? 'Your session has expired. Please lo
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,24 +54,24 @@ $timeoutMessage = isset($_GET['timeout']) ? 'Your session has expired. Please lo
             --bs-primary-rgb: 88, 129, 87;
             --bs-body-font-family: 'Nunito Sans', sans-serif;
         }
-        
+
         body {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
         }
-        
+
         .login-container {
             max-width: 420px;
             width: 100%;
         }
-        
+
         .card-header {
             background-color: rgb(var(--bs-primary-rgb));
             color: white;
         }
-        
+
         .btn-primary {
             --bs-btn-bg: rgb(var(--bs-primary-rgb));
             --bs-btn-border-color: rgb(var(--bs-primary-rgb));
@@ -78,12 +79,13 @@ $timeoutMessage = isset($_GET['timeout']) ? 'Your session has expired. Please lo
             --bs-btn-hover-border-color: #4a6e49;
             font-weight: 600;
         }
-        
+
         .logo-img {
             max-height: 60px;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container px-3">
         <div class="card shadow-sm border-0">
@@ -98,14 +100,14 @@ $timeoutMessage = isset($_GET['timeout']) ? 'Your session has expired. Please lo
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
-                
+
                 <?php if ($error): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?php echo htmlspecialchars($error); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
-                
+
                 <?php if ($isDefaultPassword): ?>
                     <div class="alert alert-warning" role="alert">
                         <strong>⚠️ Default Password Active!</strong><br>
@@ -113,7 +115,7 @@ $timeoutMessage = isset($_GET['timeout']) ? 'Your session has expired. Please lo
                         <small>Change this immediately in the settings!</small>
                     </div>
                 <?php endif; ?>
-                
+
                 <form method="POST" action="">
                     <div class="mb-3">
                         <label for="password" class="form-label fw-semibold">Password</label>
@@ -129,7 +131,8 @@ $timeoutMessage = isset($_GET['timeout']) ? 'Your session has expired. Please lo
             <small>Server Backup System - Secure Access</small>
         </footer>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

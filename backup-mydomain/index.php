@@ -163,7 +163,7 @@ function getValue($key, $default = '')
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <h2 class="h4 mb-3 border-bottom pb-2 mt-4">Step 4: Security</h2>
                             <div class="mb-3">
                                 <label for="new_admin_password" class="form-label">Change Admin Password</label>
