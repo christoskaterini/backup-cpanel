@@ -1,4 +1,7 @@
 <?php
+// Require authentication
+require_once 'auth.php';
+
 // Define the path to the config file
 $configFile = 'config.json';
 $config = [];
@@ -85,6 +88,10 @@ function getValue($key, $default = '')
                 <img src="logo.png" alt="Logo" class="logo-img my-2">
                 <h1 class="h2 my-2">Server Backup Configuration</h1>
             </div>
+            <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center" style="background-color: #f8f9fa !important; color: #333;">
+                <span class="small">🔒 Logged in as Admin</span>
+                <a href="logout.php" class="btn btn-sm btn-outline-danger">Logout</a>
+            </div>
             <div class="card-body p-4 p-md-5">
 
                 <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
@@ -142,7 +149,7 @@ function getValue($key, $default = '')
                             </div>
 
                             <h2 class="h4 mb-3 border-bottom pb-2">Step 3: Notifications</h2>
-                            <div class="row g-3">
+                            <div class="row g-3 mb-4">
                                 <div class="col-sm-7">
                                     <label for="notify_email" class="form-label">Notification Email</label>
                                     <input type="email" class="form-control" id="notify_email" name="notify_email" value="<?php echo getValue('notify_email'); ?>" placeholder="your.email@example.com">
@@ -155,6 +162,13 @@ function getValue($key, $default = '')
                                         <option value="Never" <?php if (getValue('email_mode') == 'Never') echo 'selected'; ?>>Never</option>
                                     </select>
                                 </div>
+                            </div>
+                            
+                            <h2 class="h4 mb-3 border-bottom pb-2 mt-4">Step 4: Security</h2>
+                            <div class="mb-3">
+                                <label for="new_admin_password" class="form-label">Change Admin Password</label>
+                                <input type="password" class="form-control" id="new_admin_password" name="new_admin_password" placeholder="Leave blank to keep current password">
+                                <div class="info-box">Enter a new password to protect this settings page.</div>
                             </div>
                         </div>
                     </div>

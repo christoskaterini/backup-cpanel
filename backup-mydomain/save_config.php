@@ -1,4 +1,7 @@
 <?php
+// Require authentication
+require_once 'auth.php';
+
 $configFile = 'config.json';
 $config = [];
 
@@ -28,6 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newConfig['db_pass'] = $_POST['db_pass'];
     } else {
         $newConfig['db_pass'] = isset($config['db_pass']) ? $config['db_pass'] : '';
+    }
+    
+    // Handle admin password change
+    if (!empty($_POST['new_admin_password'])) {
+        $newConfig['admin_password'] = password_hash($_POST['new_admin_password'], PASSWORD_DEFAULT);
+    } else {
+        // Keep existing admin password
+        $newConfig['admin_password'] = isset($config['admin_password']) ? $config['admin_password'] : password_hash('admin123', PASSWORD_DEFAULT);
     }
 
     // Save with unescaped slashes for cleaner paths
