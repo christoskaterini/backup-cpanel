@@ -1,11 +1,15 @@
 #!/bin/bash
+set -o pipefail
 
 # =================================================================
 #      PRODUCTION BACKUP SCRIPT ENGINE v4.0 
 # =================================================================
 
+# --- Cron Environment Setup ---
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 # --- Set fundamental paths ---
-CONFIG_FILE="/my-path-to-the/config.json"
+CONFIG_FILE="/my-full-local-path-to-the-file-config.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 JQ_CMD="$SCRIPT_DIR/jq"
 RCLONE_CMD="$SCRIPT_DIR/rclone"
@@ -115,30 +119,62 @@ run_command() {
 }
 
 # --- Start of main logic ---
+rm -rf "$BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 
 # Database backups
 if [[ -n "$DATABASES" ]]; then
-    cnf_file="/home/$CPANEL_USER/.my.cnf.tmp"; echo "[mysqldump]" > "$cnf_file"; echo "user=$DB_USER" >> "$cnf_file"; echo "password=\"$DB_PASS\"" >> "$cnf_file"; chmod 600 "$cnf_file"
-    echo "$DATABASES" | while read -r db; do
-        [[ -n "$db" ]] && log "  - Backing up database: $db" && mysqldump --defaults-extra-file="$cnf_file" --single-transaction --routines --triggers "$db" | gzip > "$BACKUP_DIR/${db}_${TIMESTAMP}.sql.gz"
-    done
+    cnf_file="/home/$CPANEL_USER/.my.cnf.tmp"; echo "[client]" > "$cnf_file"; echo "user=$DB_USER" >> "$cnf_file"; echo "password=\"$DB_PASS\"" >> "$cnf_file"; chmod 600 "$cnf_file"
+    
+    TASK_STATUS[DB]="✅ Success"
+    
+    while read -r db; do
+        if [[ -n "$db" ]]; then
+            # Pre-check if database exists to avoid "Access denied" on mysqldump
+            if ! mysql --defaults-extra-file="$cnf_file" -N -e "SHOW DATABASES LIKE '$db'" | grep -q "^$db$"; then
+                log "WARNING: Database '$db' not found or not accessible. Skipping."
+                TASK_STATUS[DB]="⚠️ Finished with Errors"
+                continue
+            fi
+
+            log "  - Backing up database: $db"
+            if ! mysqldump --defaults-extra-file="$cnf_file" --single-transaction --routines --triggers "$db" 2>> "$LOG_FILE" | gzip > "$BACKUP_DIR/${db}_${TIMESTAMP}.sql.gz"; then
+                log "ERROR: Failed to backup database: $db (Check log above for details)"
+                # Remove empty/corrupt file
+                rm -f "$BACKUP_DIR/${db}_${TIMESTAMP}.sql.gz"
+                TASK_STATUS[DB]="⚠️ Finished with Errors"
+                BACKUP_FAILED=1
+            fi
+        fi
+    done <<< "$DATABASES"
     rm -f "$cnf_file"
-    TASK_STATUS[DB]="✅ Success" # Simplified check; assumes success if loop finishes
 fi
 
 # File backups
 if [[ -n "$DIRECTORIES" ]]; then
-    echo "$DIRECTORIES" | while IFS= read -r dir; do
+    TASK_STATUS[FILES]="✅ Success"
+    while IFS= read -r dir; do
         if [[ -n "$dir" ]]; then
+            if [[ ! -d "$dir" ]]; then
+                log "ERROR: Directory not found, skipping: $dir"
+                TASK_STATUS[FILES]="⚠️ Finished with Errors"
+                BACKUP_FAILED=1
+                continue
+            fi
+
             child_dir_name=$(basename "$dir")
             parent_dir_name=$(basename "$(dirname "$dir")")
             unique_archive_name="${parent_dir_name}_${child_dir_name}"
             log "  - Archiving directory: $dir"
-            tar -czf "$BACKUP_DIR/${unique_archive_name}_${TIMESTAMP}.tar.gz" -C "$(dirname "$dir")" "$child_dir_name"
+            
+            if ! tar -czf "$BACKUP_DIR/${unique_archive_name}_${TIMESTAMP}.tar.gz" -C "$(dirname "$dir")" "$child_dir_name" 2>> "$LOG_FILE"; then
+                 log "ERROR: Failed to archive directory: $dir (Check log above for details)"
+                 rm -f "$BACKUP_DIR/${unique_archive_name}_${TIMESTAMP}.tar.gz"
+                 TASK_STATUS[FILES]="⚠️ Finished with Errors"
+                 BACKUP_FAILED=1
+            fi
         fi
-    done
-    TASK_STATUS[FILES]="✅ Success"
+    done <<< "$DIRECTORIES"
 fi
 
 # Sanity Check & Upload
@@ -151,13 +187,15 @@ else
 fi
 
 # Remote & Local Cleanup
-if [ $BACKUP_FAILED -eq 0 ]; then
+if [[ "${TASK_STATUS[UPLOAD]}" == "✅ Success" ]]; then
     if [ "$REMOTE_RETENTION_DAYS" -gt 0 ]; then
         run_task "CLEAN_REMOTE" "Cleaning up old cloud backups..." $RCLONE_CMD delete "$RCLONE_REMOTE:$GDRIVE_FOLDER" --min-age "${REMOTE_RETENTION_DAYS}d"
         $RCLONE_CMD rmdirs "$RCLONE_REMOTE:$GDRIVE_FOLDER" --leave-root > /dev/null 2>&1
     fi
-    run_task "CLEAN_LOCAL" "Cleaning up local temporary files..." rm -rf "$BACKUP_DIR"
 fi
+
+# Always clean up local files
+run_task "CLEAN_LOCAL" "Cleaning up local temporary files..." rm -rf "$BACKUP_DIR"
 
 # --- Final Status and Notification ---
 if [ $BACKUP_FAILED -eq 1 ]; then
